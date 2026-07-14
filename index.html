@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F3864">
+<title>WBAS + SIBF 2026 Planner</title>
+<style>
+:root{
+  --navy:#1F3864; --wbas:#2b6cb0; --wbas-bg:#e8f1fb; --sibf:#b7791f; --sibf-bg:#fdf3d7;
+  --gala:#2f855a; --gala-bg:#e2f2e7; --red:#c53030; --ink:#1a202c; --mut:#718096;
+  --bg:#f4f6fa; --card:#ffffff; --line:#e2e8f0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:40px}
+header{background:var(--navy);color:#fff;padding:14px 16px 10px;position:sticky;top:0;z-index:20}
+header h1{margin:0;font-size:17px;font-weight:700}
+header p{margin:2px 0 0;font-size:12px;opacity:.85}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:var(--navy);position:sticky;top:58px;z-index:19;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:none;border-radius:18px;padding:7px 13px;font-size:13px;font-weight:600;background:rgba(255,255,255,.15);color:#fff;cursor:pointer}
+nav button.on{background:#fff;color:var(--navy)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 12px 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;border:1px solid var(--line);border-radius:15px;padding:5px 12px;font-size:12px;font-weight:600;background:#fff;color:var(--mut);cursor:pointer}
+.chips button.on{border-color:var(--navy);background:var(--navy);color:#fff}
+main{padding:8px 12px;max-width:640px;margin:0 auto}
+.dayhead{font-size:13px;font-weight:700;color:var(--mut);margin:14px 4px 6px;text-transform:uppercase;letter-spacing:.04em}
+.card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--mut);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px}
+.card.WBAS{border-left-color:var(--wbas)}
+.card.SIBF{border-left-color:var(--sibf)}
+.card.GALA{border-left-color:var(--gala)}
+.time{flex:0 0 52px;font-size:13px;font-weight:700;padding-top:1px}
+.body{flex:1;min-width:0}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px;margin-right:5px;vertical-align:1px}
+.WBAS .tag.src{background:var(--wbas-bg);color:var(--wbas)}
+.SIBF .tag.src{background:var(--sibf-bg);color:#8a5a10}
+.GALA .tag.src{background:var(--gala-bg);color:var(--gala)}
+.tag.div{background:#edf2f7;color:#4a5568}
+.title{font-size:14px;font-weight:600;line-height:1.3;margin:3px 0 2px}
+.who{font-size:12px;color:var(--mut)}
+.venue{font-size:11.5px;color:var(--mut);margin-top:3px}
+.clash{font-size:11.5px;color:var(--red);font-weight:600;margin-top:4px}
+.star{flex:0 0 34px;align-self:center;border:none;background:none;font-size:22px;cursor:pointer;color:#cbd5e0;padding:4px}
+.star.on{color:#d69e2e}
+.empty{text-align:center;color:var(--mut);font-size:13px;padding:40px 10px}
+footer{max-width:640px;margin:20px auto 0;padding:0 16px;font-size:11px;color:var(--mut);line-height:1.5}
+.count{font-size:11px;background:#d69e2e;color:#fff;border-radius:9px;padding:1px 6px;margin-left:4px;font-weight:700}
+input#q{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:14px;margin:6px 0 2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>WBAS Symposium + SIBF 2026</h1>
+  <p>21–26 July 2026 &middot; Singapore &middot; tap ★ to build your plan</p>
+</header>
+<nav id="days"></nav>
+<div class="chips" id="chips"></div>
+<main>
+  <input id="q" type="search" placeholder="Search bands, sessions, presenters…">
+  <div id="list"></div>
+</main>
+<footer>
+  <b>Venues:</b> YSTCM = Yong Siew Toh Conservatory (NUS) &middot; SRC = Stephen Riady Centre, UTown (~10 min walk from YSTCM) &middot; UCC = University Cultural Centre (NUS) &middot; Esplanade = Esplanade Concert Hall (city centre, ~25 min from NUS).<br><br>
+  <b>Divisions:</b> B1–B3 concert bands &middot; B2A/B2B = Division 2 &middot; SE = Small Ensemble &middot; PE = Percussion Ensemble &middot; CD = Concert Division (Esplanade).<br><br>
+  WBAS times are published start times (sessions ≈ 60 min). Schedules subject to change — check <a href="https://www.sibf.sg/sibf2026">sibf.sg</a> and <a href="https://www.wbas.org.sg/symposium">wbas.org.sg</a>. Your ★ picks are saved on this device only.
+</footer>
+<script>
+const YST="YSTCM Concert Hall", SRC="Stephen Riady Centre (UTown)", UCC="University Cultural Centre", ESP="Esplanade Concert Hall";
+// t=time, s=source, dv=division/type, ti=title, w=who, v=venue, c=clash note
+const E=[
+["21","10:00","SIBF","B2B","Serangoon Secondary Symphonic Band","Leonard Chen · Singapore",YST,""],
+["21","10:20","SIBF","B2B","Xinmin Symphonic Band","Daniel Kiang · Singapore",YST,""],
+["21","10:40","SIBF","B2B","Boon Lay Secondary School Concert Band","Eddie Chng · Singapore",YST,""],
+["21","11:20","SIBF","B2B","Temasek Junior College Symphonic Band (IP)","Jovan Neo · Singapore",YST,""],
+["21","11:40","SIBF","B2B","Unity Secondary School Symphonic Band","Wilson Ong · Singapore",YST,""],
+["21","13:30","SIBF","B2B","Woodlands Secondary School","Andrew Ng · Singapore",YST,""],
+["21","13:50","SIBF","B2B","Bukit View Concert Band","Marcus Kwek · Singapore",YST,""],
+["21","14:10","SIBF","B2B","Broadrick Concert Band","Tarun Jayaram · Singapore",YST,""],
+["21","14:30","SIBF","B2B","Yuhua Concert Band","Joseph Chong · Singapore",YST,""],
+["21","14:50","SIBF","B2B","St. Margaret's Concert Band","Jade Lim · Singapore",YST,""],
+["21","15:10","SIBF","B2B","St. Joseph's Institution Symphonic Band","Soh Hwa Tan · Singapore",YST,""],
+["21","16:00","SIBF","B2B","Guanghua Elementary School Wind Band","Lian Tengwei · Chinese Taipei",YST,""],
+["21","16:20","SIBF","B2B","CTWinds","Hendrik Kwek · Singapore",YST,""],
+["21","16:40","SIBF","B2B","Loyang View Symphonic Band","Yap Jia Qi Shawn · Singapore",YST,""],
+["21","17:00","SIBF","B2B","Zhenghua Concert Band","Takehiro Oura · Singapore",YST,""],
+["21","17:20","SIBF","B2B","Jenan Wind Orchestra","M. Zarief Irfan · Malaysia",YST,""],
+["21","17:40","SIBF","B2B","Crestwinds","Hendrik Kwek · Singapore",YST,""],
+["21","18:00","SIBF","B2B","Yuan Ching Concert Band","Daniel Ong · Singapore",YST,""],
+["22","09:40","SIBF","B2B","Yunshang Philharmonic Youth Symphony Wind Orchestra","Li Bowei · China",YST,""],
+["22","10:00","SIBF","B2B","Tampines Secondary School Concert Band","Hendrik Kwek · Singapore",YST,""],
+["22","10:20","SIBF","B2B","Guangzhou Wind Music Association Youth Wind Band","Tao Lixin · China",YST,""],
+["22","10:40","SIBF","B2B","Crescent Girls' School Symphonic Band","Tan Soh Hwa · Singapore",YST,""],
+["22","11:00","SIBF","B2B","Anglo-Chinese School (Barker Road) Concert Band","Joseph Chong · Singapore",YST,""],
+["22","11:20","SIBF","B2B","Nanyang Girls' High School Concert Band","Louis Yeo · Singapore",YST,""],
+["22","11:55","SIBF","B3","Beijing Youth Philharmonic Orchestra (Group A)","Bing Bing Zhang · China",YST,""],
+["22","12:15","SIBF","B3","SJKC Jalan Davidson","Chee Wai Chong · Malaysia",YST,""],
+["22","12:35","SIBF","B3","Rivervale Primary School Brass Band","Philip Han · Singapore",YST,""],
+["22","14:25","SIBF","B3","Haizhu District Experimental Primary School Wind Band","Zhao Bin Ouyang · China",YST,""],
+["22","15:05","SIBF","B3","Naval Base Primary School Concert Band","Alvin Chan · Singapore",YST,""],
+["22","15:25","SIBF","B3","Beijing Youth Philharmonic Orchestra (Group B)","Bing Bing Zhang · China",YST,""],
+["22","15:45","SIBF","B3","CHIJ Our Lady of the Nativity Brass Band","Philip Han · Singapore",YST,""],
+["22","17:15","SIBF","B3","Pui Ching Primary School Concert Band","Jacky Leung · Hong Kong",YST,""],
+["22","17:35","SIBF","B3","New Taipei City Kuangfu Elementary School Wind Band","Shun-Fa Chen · Chinese Taipei",YST,""],
+["22","17:55","SIBF","B3","Shenzhen Shockwave Wind Band (Nanshan Dachong School)","Philip Han · China",YST,""],
+["23","10:00","WBAS","Registration","Symposium Registration & Badge Collection","10:00–18:00 · all delegates","Yong Siew Toh Conservatory of Music","Same building as Div 2A — register, then watch bands"],
+["23","10:00","SIBF","B2A","De La Salle Santiago Zobel Symphonic Band","Linwell Lalic · Philippines",YST,""],
+["23","10:25","SIBF","B2A","Chengdu Golden Apple Jincheng No.1 Sec. School Wind Orchestra","Zhu Chaoqing · China",YST,""],
+["23","10:50","SIBF","B2A","National Junior College Symphonic Band","Yi Bin Seow · Singapore",YST,""],
+["23","11:00","WBAS","Excursion","SAF Band Open Rehearsal (Nee Soon Camp)","Registrants only · bus 11:15, back 15:15","Nee Soon Camp","Clash: misses most of Div 2A"],
+["23","11:15","SIBF","B2A","Tshung Tsin Wind Symphony","Ho Chee Kiang · Malaysia",YST,""],
+["23","11:40","SIBF","B2A","Assumption College Rayong Symphonic Band","Prasong Rlodklongtan · Thailand",YST,""],
+["23","12:05","SIBF","B2A","Muar Chung Hwa High School Wind Orchestra","Cheng Chong Fu · Malaysia",YST,""],
+["23","14:00","SIBF","B2A","Foon Yew High School Kulai Concert Band","Wen Jack Chang · Malaysia",YST,""],
+["23","14:25","SIBF","B2A","Raffles Girls' School Symphonic Band","Yi Bin Seow · Singapore",YST,""],
+["23","14:50","SIBF","B2A","New Taipei Hai-Shan High School (Jr High Div.) Wind Band","Yu-Chien Tuan · Chinese Taipei",YST,""],
+["23","18:30","WBAS","Reception","Pre-Concert Reception","","YSTCM",""],
+["23","19:30","GALA","Concert","WBAS Symposium Opening Concert","19:30–21:30",YST,""],
+["24","09:30","WBAS","Keynote","Opening Keynote","Dean Peter Tornquist",SRC,"Clash: vs Percussion Ensemble"],
+["24","09:30","SIBF","PE4","CGES Percussion","Kuan-Lun Hong · Chinese Taipei",YST,"Clash: vs Opening Keynote"],
+["24","10:00","SIBF","PE3","Semper","Loo Zhen Yang · Singapore",YST,""],
+["24","10:00","WBAS","Session","Empowering Band Leaders","Derek Lim & Carmen Wang",SRC,""],
+["24","10:30","SIBF","PE2","ACR Percussion Ensemble","Achittapol Tinnarat · Thailand",YST,""],
+["24","11:00","WBAS","Track A","Interpreting Asian-Inspired Repertoire Through Topic Theory","Dr Low Chee Meng",SRC,"Parallel: From Score to Podium I"],
+["24","11:00","WBAS","Track B","From Score to Podium I","Dr Colleen Richardson & Assoc Prof Chan Tze Law",SRC,"Clash: vs morning Small Ensembles"],
+["24","11:30","SIBF","SE4","Golden Horn Orchestra Trio","Jin Enjun · China",YST,"Clash: vs 11:00 WBAS sessions"],
+["24","11:40","SIBF","SE2","Diocesan Boys' School Saxophone Quartet","Otto Pang · Hong Kong",YST,""],
+["24","12:00","SIBF","SE2","Sri KL Double Reed Trio","Malaysia",YST,""],
+["24","12:00","WBAS","Session","Preparing Future-Ready Musicians: Pedagogy in HS Wind Band Rehearsals","Jovan Neo",SRC,""],
+["24","13:00","WBAS","Break","Lunch (provided for delegates)","",SRC,""],
+["24","13:35","SIBF","SE2","Diocesan Boys' School Woodwind Quintet","Otto Pang · Hong Kong",YST,""],
+["24","13:55","SIBF","SE2","ITE Concert Band","Mohamad Rasull · Singapore",YST,""],
+["24","14:15","SIBF","SE2","Sri KL Flute Ensemble","Malaysia",YST,""],
+["24","14:30","WBAS","Track A","Beyond Notes: Psychological Well-being, Identity & Performance","Daniel Ho & Chan Wei En",SRC,"Clash: vs afternoon Small Ensembles"],
+["24","14:30","WBAS","Track B","Music EdTech Solutions: AI and the Future Music Classroom","Francis Tan & Dr Lim Teck Chuan",SRC,""],
+["24","14:35","SIBF","SE2","Diocesan Boys' School Brass Quintet","Otto Pang · Hong Kong",YST,""],
+["24","15:25","SIBF","SE1","Siang Lom 4 Thit","Thailand",YST,""],
+["24","15:30","WBAS","Session","Copyright in Practice: A Conversation with COMPASS","COMPASS",SRC,""],
+["24","15:55","SIBF","SE1","Hsinchu Tzu Chiang Junior High School Brass Quintet","Chinese Taipei",YST,""],
+["24","16:25","SIBF","SE1","Arun Brass Quintet","Thailand",YST,""],
+["24","16:30","WBAS","Track A","Beyond the Score: Integrating Improvisation into Wind Band Training","Rit Xu",SRC,""],
+["24","16:30","WBAS","Track B","Tone Development and Production","Dr Surapol Thanyawibool",SRC,""],
+["24","16:55","SIBF","SE1","Malacca Brass Quintet","Malaysia",YST,""],
+["24","19:30","GALA","Gala","SIBF Gala: Japanese Masterworks","Osaka Shion Wind Orchestra",UCC,""],
+["25","09:30","WBAS","Session","COMPOSE! Mentoring","Eiji Suzuki",SRC,""],
+["25","10:00","SIBF","B1","Singapore Polytechnic Symphonic Band","Adrian Chiang · Singapore",YST,"Clash: vs WBAS morning sessions"],
+["25","10:30","SIBF","B1","Tutti Wind Orchestra (TWO)","Ken Lun (Chris) Wong · Malaysia",YST,""],
+["25","11:00","SIBF","B1","RP Wind Symphony","Tianze Luo · Singapore",YST,""],
+["25","11:00","WBAS","Track A","Composing Community: From Creative Collective to Local Advocacy","Viskamol Chaiwanichsiri",SRC,"Clash: vs Division 1"],
+["25","11:00","WBAS","Track B","Whose Rehearsal Is It Anyway?","Rachel Howley",SRC,"Clash: vs Division 1"],
+["25","11:30","SIBF","B1","Millennia Institute Symphonic Band","Eddie Chng · Singapore",YST,""],
+["25","12:00","SIBF","B1","Ngee Ann Polytechnic Concert Band","Aik Kee Ken Steven Tan · Singapore",YST,""],
+["25","12:30","WBAS","Break","Lunch (provided for delegates)","",SRC,""],
+["25","14:00","WBAS","Track A","When Phrases Feel 'Short' or 'Long': Teaching Phrase Awareness","Dr Eugene Seow",SRC,""],
+["25","14:00","WBAS","Track B","Articulation in Winds, Brass & Percussion — Systematic Pedagogy","Dr Lee Tian Tee",SRC,""],
+["25","15:00","WBAS","Track A","Programming with Purpose: Repertoire Selection & Festival Prep","Dr Meijun Chen",SRC,"Clash: vs Concert Division (Esplanade)"],
+["25","15:00","WBAS","Track B","The Euphonium: The Lyrical Heart of the Band","Shoichiro Hokazono",SRC,"Clash: vs Concert Division (Esplanade)"],
+["25","15:00","SIBF","CD","AudioImage Wind Ensemble","Mohamad Rasull · Singapore",ESP,"Note: at Esplanade, ~25 min from NUS"],
+["25","16:00","WBAS","Session","Elevating the Auxiliary: Mastering Percussion Accessories","Saturnino Tiamson Jr.",SRC,"Clash: vs Concert Division"],
+["25","16:00","SIBF","CD","Youka Wind Ensemble","Liao Wen-Cheng · Chinese Taipei",ESP,""],
+["25","17:00","SIBF","CD","Singapore Wind Symphony Youth","Daniel Yiau · Singapore",ESP,""],
+["25","19:30","GALA","Gala","SIBF Gala: POPSTAGE — New Sounds in Brass Showcase","Osaka Shion Wind Orchestra",UCC,""],
+["26","09:00","WBAS","Track A","From Score to Podium II","Dr Colleen Richardson & Assoc Prof Chan Tze Law",SRC,""],
+["26","10:00","WBAS","Track B","Musical Independence and the Joy of Making Music Every Day!","Dr Colleen Richardson",SRC,""],
+["26","11:00","WBAS","Track B","Laying the Foundation for Musical Excellence — The Japanese Story","Toru Miura",SRC,""],
+["26","12:00","WBAS","Keynote","Closing Keynote","Dr Colleen Richardson",SRC,""],
+["26","17:00","GALA","Concert","SIBF Closing Concert & Award Ceremony","SAF Central Band · results announced",YST,""],
+["26","19:00","WBAS","Reception","Post Award Reception","","YSTCM",""],
+];
+const DAYS=[["21","Tue 21"],["22","Wed 22"],["23","Thu 23"],["24","Fri 24"],["25","Sat 25"],["26","Sun 26"]];
+const DAYNAMES={21:"Tuesday 21 July",22:"Wednesday 22 July",23:"Thursday 23 July",24:"Friday 24 July",25:"Saturday 25 July",26:"Sunday 26 July"};
+const FILTERS=[["all","All"],["WBAS","Symposium"],["SIBF","Bands"],["GALA","Concerts"],["mine","★ My Plan"]];
+let day=localStorage.getItem("wsib.day")||"21", filt="all", q="";
+let stars=new Set(JSON.parse(localStorage.getItem("wsib.stars")||"[]"));
+const idOf=e=>e[0]+"|"+e[1]+"|"+e[4];
+
+function save(){localStorage.setItem("wsib.stars",JSON.stringify([...stars]));localStorage.setItem("wsib.day",day)}
+function renderNav(){
+  document.getElementById("days").innerHTML=DAYS.map(([d,l])=>{
+    const n=[...stars].filter(id=>id.startsWith(d+"|")).length;
+    return `<button class="${d===day?'on':''}" onclick="setDay('${d}')">${l}${n?`<span class="count">${n}</span>`:""}</button>`;
+  }).join("");
+  document.getElementById("chips").innerHTML=FILTERS.map(([f,l])=>
+    `<button class="${f===filt?'on':''}" onclick="setFilt('${f}')">${l}</button>`).join("");
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function render(){
+  renderNav();
+  let rows=E.filter(e=>{
+    if(filt==="mine"){if(!stars.has(idOf(e)))return false}
+    else{
+      if(e[0]!==day)return false;
+      if(filt!=="all"&&e[2]!==filt)return false;
+    }
+    if(q){const hay=(e[3]+" "+e[4]+" "+e[5]+" "+e[6]).toLowerCase();if(!hay.includes(q))return false}
+    return true;
+  });
+  if(filt==="mine")rows=rows.slice().sort((a,b)=>(a[0]+a[1]).localeCompare(b[0]+b[1]));
+  let html="",lastDay="";
+  for(const e of rows){
+    if(filt==="mine"&&e[0]!==lastDay){html+=`<div class="dayhead">${DAYNAMES[e[0]]}</div>`;lastDay=e[0]}
+    const id=idOf(e),on=stars.has(id);
+    html+=`<div class="card ${e[2]}">
+      <div class="time">${e[1]}</div>
+      <div class="body">
+        <span class="tag src">${e[2]==="GALA"?"CONCERT":e[2]}</span><span class="tag div">${esc(e[3])}</span>
+        <div class="title">${esc(e[4])}</div>
+        ${e[5]?`<div class="who">${esc(e[5])}</div>`:""}
+        <div class="venue">📍 ${esc(e[6])}</div>
+        ${e[7]?`<div class="clash">⚠️ ${esc(e[7])}</div>`:""}
+      </div>
+      <button class="star ${on?'on':''}" aria-label="save" onclick="toggle('${id.replace(/'/g,"\\'")}')">${on?"★":"☆"}</button>
+    </div>`;
+  }
+  document.getElementById("list").innerHTML=html||`<div class="empty">${filt==="mine"?"Nothing starred yet — tap ☆ on events you want to attend.":"Nothing matches."}</div>`;
+}
+function setDay(d){day=d;if(filt==="mine")filt="all";save();render();window.scrollTo(0,0)}
+function setFilt(f){filt=f;render()}
+function toggle(id){stars.has(id)?stars.delete(id):stars.add(id);save();render()}
+document.getElementById("q").addEventListener("input",e=>{q=e.target.value.trim().toLowerCase();render()});
+// default to today during the festival
+const now=new Date();
+if(now.getFullYear()===2026&&now.getMonth()===6){const d=String(now.getDate());if(DAYS.some(x=>x[0]===d)&&!localStorage.getItem("wsib.day"))day=d}
+render();
+</script>
+</body>
+</html>
