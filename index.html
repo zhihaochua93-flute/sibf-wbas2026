@@ -49,12 +49,46 @@ main{padding:8px 12px;max-width:640px;margin:0 auto}
 .empty{text-align:center;color:var(--mut);font-size:13px;padding:40px 10px}
 footer{max-width:640px;margin:20px auto 0;padding:0 16px;font-size:11px;color:var(--mut);line-height:1.5}
 .count{font-size:11px;background:#d69e2e;color:#fff;border-radius:9px;padding:1px 6px;margin-left:4px;font-weight:700}
-input#q{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:14px;margin:6px 0 2px}
+input#q{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:14px;margin:6px 0 2px;background:var(--card);color:var(--ink)}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#mapbtn{flex:0 0 auto;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.nowbar{font-size:12px;font-weight:700;color:#fff;background:var(--red);border-radius:8px;padding:7px 11px;margin:8px 0 8px;letter-spacing:.02em}
+.clashbar{font-size:12px;background:#fff4e5;border:1px solid #f0b37e;color:#9a4a00;border-radius:9px;padding:9px 11px;margin:6px 0 10px;line-height:1.5}
+.clashbar b{display:block;margin-bottom:3px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);width:100%;max-width:640px;border-radius:16px 16px 0 0;padding:14px 16px 26px;max-height:88vh;overflow:auto}
+.sheethead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sheethead b{font-size:15px}
+.sheethead button{border:none;background:none;font-size:20px;cursor:pointer;color:var(--mut)}
+.sheetsub{font-size:12px;color:var(--mut);margin:-2px 0 10px}
+.mapwrap{background:radial-gradient(120% 90% at 50% 0%,#eaf1fb 0%,#e3ebf5 100%);border:1px solid var(--line);border-radius:14px;padding:4px 2px 0;margin-bottom:4px}
+.maplinks{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.venuecard{display:block;position:relative;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 78px 11px 14px;overflow:hidden}
+.venuecard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--vc)}
+.venuecard .vtitle{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink)}
+.venuecard .vdot{width:12px;height:12px;border-radius:50%;flex:0 0 auto;background:var(--vc)}
+.venuecard .vwhat{font-size:12px;color:var(--mut);margin-top:4px;line-height:1.45}
+.venuecard .vaddr{font-size:11px;color:var(--mut);margin-top:6px}
+.venuecard .vgo{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:var(--wbas)}
+.maptip{display:flex;gap:8px;font-size:11.5px;color:var(--mut);line-height:1.5;margin:14px 2px 0;padding-top:12px;border-top:1px solid var(--line)}
+.maptip .ic{flex:0 0 auto;font-size:15px;line-height:1}
+@media (prefers-color-scheme: dark){
+  :root{--navy:#101c33;--wbas:#7fb0e6;--wbas-bg:#12243b;--sibf:#e3b341;--sibf-bg:#33290f;
+    --gala:#5fbf88;--gala-bg:#13291d;--ink:#e7ebf1;--mut:#98a3b3;--bg:#0b0f16;--card:#161b23;--line:#2a313c;}
+  .SIBF .tag.src{color:#e3b341}
+  .WBAS .tag.src{color:#7fb0e6}
+  .GALA .tag.src{color:#5fbf88}
+  .tag.div{background:#232a35;color:#c2cad6}
+  .prog summary{color:#e3b341}
+  .star{color:#3a424e}
+  .clashbar{background:#2c2411;border-color:#6b551f;color:#f0c987}
+  .mapwrap{background:radial-gradient(120% 90% at 50% 0%,#151d2b 0%,#0f1622 100%)}
+}
 </style>
 </head>
 <body>
 <header>
-  <h1>WBAS Symposium + SIBF 2026</h1>
+  <div class="hrow"><h1>WBAS Symposium + SIBF 2026</h1><button id="mapbtn" onclick="toggleMap(1)">🗺 Map</button></div>
   <p>21–26 July 2026 &middot; Singapore &middot; tap ★ to build your plan</p>
 </header>
 <nav id="days"></nav>
@@ -68,6 +102,54 @@ input#q{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 12
   <b>Divisions:</b> B1–B3 concert bands &middot; B2A/B2B = Division 2 &middot; SE = Small Ensemble &middot; PE = Percussion Ensemble &middot; CD = Concert Division (YSTCM).<br><br>
   WBAS times are published start times (sessions ≈ 60 min). Schedules subject to change — check <a href="https://www.sibf.sg/sibf2026">sibf.sg</a> and <a href="https://www.wbas.org.sg/symposium">wbas.org.sg</a>. Your ★ picks are saved on this device only.
 </footer>
+<div id="mapmodal" class="modal" onclick="if(event.target.id==='mapmodal')toggleMap(0)">
+  <div class="sheet">
+    <div class="sheethead"><b>Getting around · NUS</b><button onclick="toggleMap(0)" aria-label="close">✕</button></div>
+    <div class="sheetsub">Three venues, all on the NUS campus. Tap any pin or card for live directions.</div>
+    <div class="mapwrap">
+    <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">
+      <text x="300" y="22" text-anchor="middle" font-size="10" font-weight="700" fill="var(--mut)">N</text>
+      <path d="M300 26 l-4 8 h8 z" fill="var(--mut)"/>
+      <path d="M160 62 L92 188" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <path d="M160 62 L228 188" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <path d="M92 188 L228 188" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <g font-size="10" font-weight="600"><rect x="98" y="116" width="50" height="17" rx="8.5" fill="var(--card)" stroke="var(--line)"/><text x="123" y="128" text-anchor="middle" fill="var(--mut)">🚶 15m</text></g>
+      <g font-size="10" font-weight="600"><rect x="172" y="116" width="50" height="17" rx="8.5" fill="var(--card)" stroke="var(--line)"/><text x="197" y="128" text-anchor="middle" fill="var(--mut)">🚶 15m</text></g>
+      <g font-size="10" font-weight="600"><rect x="135" y="179" width="50" height="17" rx="8.5" fill="var(--card)" stroke="var(--line)"/><text x="160" y="191" text-anchor="middle" fill="var(--mut)">🚶 5m</text></g>
+      <a href="https://www.google.com/maps/search/?api=1&query=Stephen%20Riady%20Centre%20NUS%20UTown" target="_blank" rel="noopener">
+        <circle cx="160" cy="52" r="16" fill="#2f855a" stroke="#fff" stroke-width="3"/><text x="160" y="57" text-anchor="middle" font-size="15">🎓</text>
+        <text x="160" y="24" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Stephen Riady Centre</text>
+        <text x="160" y="37" text-anchor="middle" font-size="10" fill="var(--mut)">UTown · symposium sessions</text></a>
+      <a href="https://www.google.com/maps/search/?api=1&query=Yong%20Siew%20Toh%20Conservatory%20of%20Music%20NUS" target="_blank" rel="noopener">
+        <circle cx="92" cy="198" r="16" fill="#b7791f" stroke="#fff" stroke-width="3"/><text x="92" y="203" text-anchor="middle" font-size="15">🎼</text>
+        <text x="92" y="226" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">YSTCM</text>
+        <text x="92" y="239" text-anchor="middle" font-size="10" fill="var(--mut)">competition · concerts</text></a>
+      <a href="https://www.google.com/maps/search/?api=1&query=University%20Cultural%20Centre%20NUS" target="_blank" rel="noopener">
+        <circle cx="228" cy="198" r="16" fill="#2b6cb0" stroke="#fff" stroke-width="3"/><text x="228" y="203" text-anchor="middle" font-size="15">🎷</text>
+        <text x="228" y="226" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">UCC</text>
+        <text x="228" y="239" text-anchor="middle" font-size="10" fill="var(--mut)">SIBF gala concerts</text></a>
+    </svg>
+    </div>
+    <div class="maplinks">
+      <a class="venuecard" style="--vc:#b7791f" href="https://www.google.com/maps/search/?api=1&query=Yong%20Siew%20Toh%20Conservatory%20of%20Music%20NUS" target="_blank" rel="noopener">
+        <div class="vtitle"><span class="vdot"></span>YSTCM Concert Hall</div>
+        <div class="vwhat">🎼 All competition rounds (Div 1–3, Small &amp; Percussion Ensembles, Concert Div) · Opening &amp; Closing concerts · symposium registration</div>
+        <div class="vaddr">📍 3 Conservatory Drive, S’pore 117376</div>
+        <span class="vgo">Directions ›</span></a>
+      <a class="venuecard" style="--vc:#2f855a" href="https://www.google.com/maps/search/?api=1&query=Stephen%20Riady%20Centre%20NUS%20UTown" target="_blank" rel="noopener">
+        <div class="vtitle"><span class="vdot"></span>Stephen Riady Centre</div>
+        <div class="vwhat">🎓 All symposium sessions, keynotes, clinics &amp; workshops (Auditorium 2, Dance Atelier 2, Practice Rooms) · UTown</div>
+        <div class="vaddr">📍 2 College Avenue West, S’pore 138607</div>
+        <span class="vgo">Directions ›</span></a>
+      <a class="venuecard" style="--vc:#2b6cb0" href="https://www.google.com/maps/search/?api=1&query=University%20Cultural%20Centre%20NUS" target="_blank" rel="noopener">
+        <div class="vtitle"><span class="vdot"></span>University Cultural Centre</div>
+        <div class="vwhat">🎷 SIBF Gala Concerts — Osaka Shion Wind Orchestra (Fri &amp; Sat, 7:30 pm)</div>
+        <div class="vaddr">📍 50 Kent Ridge Crescent, S’pore 119279</div>
+        <span class="vgo">Directions ›</span></a>
+    </div>
+    <div class="maptip"><span class="ic">🚌</span><span>YSTCM &amp; UCC sit together at Kent Ridge (~5 min walk). Stephen Riady Centre is up at UTown — ~15 min walk, or hop on the free NUS internal shuttle (ISB line) between Kent Ridge and UTown.</span></div>
+  </div>
+</div>
 <script>
 const YST="YSTCM Concert Hall", SRC="Stephen Riady Centre (UTown)", UCC="University Cultural Centre", ESP="Esplanade Concert Hall";
 // t=time, s=source, dv=division/type, ti=title, w=who, v=venue, c=clash note
@@ -173,7 +255,7 @@ const E=[
 const P={"Golden Horn Orchestra Trio": ["Variations on 'Là ci darem la mano' WoO 28 (Beethoven)", "Trio in C Major, Op. 87 — I. Allegro, II. Adagio (Beethoven)"], "Serangoon Secondary Symphonic Band": ["Doctor Tritonicus (Joseph Compello)", "Fields Overture (Hiroki Takahashi)"], "Xinmin Symphonic Band": ["A Trishaw Ride (Chow Shern Yeo)", "Celtic Fantasy (Keiichi Kurokawa)"], "Boon Lay Secondary School Concert Band": ["Uniquely You (Adrian B. Sims)", "Spring Breeze Overture (Keiichi Kurokawa)"], "Temasek Junior College Symphonic Band (IP)": ["A Trishaw Ride (Chow Shern Yeo)", "Like the Eagle, We Soar and Rise (Satoshi Yagisawa)"], "Unity Secondary School Symphonic Band": ["A Trishaw Ride (Chow Shern Yeo)", "Skyward Spirits (A Micro-Symphony) (JaRod Hall)"], "Woodlands Secondary School": ["Doctor Tritonicus (Joseph Compello)", "Bloom: The Gift of Spring (Satoshi Yagisawa)"], "Bukit View Concert Band": ["Uniquely You (Adrian B. Sims)", "Inspire! — Journey of a Child's Dream (Satoshi Yagisawa)"], "Broadrick Concert Band": ["Spiritus Invictus (JaRod Hall)", "Our Kingsland Spring (Samuel R. Hazo)", "Choose Joy (Randall D. Standridge)"], "Yuhua Concert Band": ["Skygazer Fanfare (Randall D. Standridge)", "A Trishaw Ride (Chow Shern Yeo)", "Byzantine Dances (Carol Brittin Chambers)"], "St. Margaret's Concert Band": ["Doctor Tritonicus (Joseph Compello)", "The Wolves of Alaska (Rossano Galante)"], "St. Joseph's Institution Symphonic Band": ["A Trishaw Ride (Chow Shern Yeo)", "On the Meaning of Life (Takafumi Hikage)"], "Guanghua Elementary School Wind Band": ["Our Kingsland Spring (Samuel R. Hazo)", "God of turbulent days YUKIMURA (Masanori Taruya)"], "CTWinds": ["Under the Ice (Tyler S. Grant)", "Symphonic Poem Journey to the West — Small Band ver. (Hirokazu Fukushima)"], "Loyang View Symphonic Band": ["A Trishaw Ride (Chow Shern Yeo)", "Eiger: A Journey to the Summit (James Swearingen)"], "Zhenghua Concert Band": ["Under the Ice (Tyler S. Grant)", "Cat Adventure (Daisuke Ehara)"], "Jenan Wind Orchestra": ["Under the Ice (Tyler S. Grant)", "Melayu Timur (Jinnawat Mansap)"], "Crestwinds": ["Under the Ice (Tyler S. Grant)", "Celebration and Song (Robert Sheldon)"], "Yuan Ching Concert Band": ["Our Kingsland Spring (Samuel R. Hazo)", "Railway (Shin'ya Takahashi)"], "Yunshang Philharmonic Youth Symphony Wind Orchestra": ["The Wind Blows Where It Will (Naoya Wada)", "Our Kingsland Spring (Samuel R. Hazo)"], "Tampines Secondary School Concert Band": ["A Trishaw Ride (Chow Shern Yeo)", "Railway (Shin'ya Takahashi)"], "Guangzhou Wind Music Association Youth Wind Band": ["Our Kingsland Spring (Samuel R. Hazo)", "Digital Prisms (Larry Clark)"], "Crescent Girls' School Symphonic Band": ["Uniquely You (Adrian B. Sims)", "Three Blind Mice (Bert Appermont)"], "Anglo-Chinese School (Barker Road) Concert Band": ["Our Kingsland Spring (Samuel R. Hazo)", "Railway (Shin'ya Takahashi)"], "Nanyang Girls' High School Concert Band": ["A Trishaw Ride (Chow Shern Yeo)", "Landmark Overture (Jim Andy Caudill)"], "Beijing Youth Philharmonic Orchestra (Group A)": ["Beyond the Riverbend (Robert Sheldon)", "Flight of Valor (James Swearingen)"], "SJKC Jalan Davidson": ["Beautiful Danxia — Rainbow Mountains (Satoshi Yagisawa)", "Chan Mali Chan (arr. Yu-Yao Lim)"], "Rivervale Primary School Brass Band": ["Scorpion! (Richard L. Saucedo)", "Brace for Impact (Christina Huss)", "Across the Desert Sands (Michael Oare, arr. Philip Han)"], "Haizhu District Experimental Primary School Wind Band": ["Forever Shining (James Swearingen)", "Pilatus: Mountain of Dragons (Steven Reineke, arr. Matt Conaway)"], "Naval Base Primary School Concert Band": ["Andromeda Overture (Mark Williams)", "Twist and Shout (The Beatles, arr. Michael Sweeney)"], "Beijing Youth Philharmonic Orchestra (Group B)": ["Come, Drink One More Cup 《更进酒》 (Chen Qian)", "Jazz Suite No. 2 — I. March (Shostakovich, arr. Johan de Meij)"], "CHIJ Our Lady of the Nativity Brass Band": ["Nottingham Sketches (Tracy O. Behrman, arr. Philip Han)", "Kampong Love (Benjamin Yeo)", "Squirrel Chase (Carol Brittin Chambers)"], "Pui Ching Primary School Concert Band": ["Dragonstone (Gavin Lendt)", "Firebirds (Randall D. Standridge)"], "New Taipei City Kuangfu Elementary School Wind Band": ["Future of Tomorrow (Benjamin Yeo)", "Blue Energy 蒼の躍動 (Daisuke Ehara)"], "Shenzhen Nanshan Foreign Language School Group Dachong School Shockwave Wind Band": ["Darklands March (Randall D. Standridge)", "Rising Above — A New Hope (Satoshi Yagisawa)"], "Chengdu Golden Apple Jincheng No. 1 Secondary School Wind Orchestra": ["One Life Beautiful (Julie Giroux)", "The Spirit of St. Louis (Daisuke Shimizu)"], "National Junior College Symphonic Band": ["Choreography (Robert Sheldon)", "One Life Beautiful (Julie Giroux)"], "Tshung Tsin Wind Symphony": ["Rapture (Brian Balmages)", "One Life Beautiful (Julie Giroux)"], "Assumption College Rayong Symphonic Band": ["Rocketship! (Kevin Day)", "Cavetowns 'Cappadocia' (Satoshi Yagisawa)"], "Muar Chung Hwa High School Wind Orchestra": ["Trishaw March (Viskamol Chaiwanichsiri)", "Dancing in the Wind — Kaze-No-Mai (Yosuke Fukuda)"], "Foon Yew High School Kulai Concert Band": ["Trishaw March (Viskamol Chaiwanichsiri)", "The Song of Southern Grace 《南离敷教》 (Yeo Chow Shern)"], "Raffles Girls' School Symphonic Band": ["Rocketship! (Kevin Day)", "Of Castles and Legends (Thomas Doss)"], "New Taipei Municipal Hai-Shan High School Junior High Division Wind Band": ["Rocketship! (Kevin Day)", "Montserrat (Satoshi Yagisawa)"], "CGES Percussion": ["Saiun 彩雲 (Daiya Hamaguchi)", "Jounetsu Tairiku 情熱大陸 (Taro Hakase, arr. Shogo Igarashi)"], "Semper": ["Watercolor Sun (Ivan Trevino)", "Mercury Rising (Nathan Daughtrey)"], "ACR Percussion Ensemble": ["Jeen Tok Mai Overture (Supoj Tosa-nga, arr. P. Assawachainarong)", "Carmen Suite (Bizet, arr. P. Assawachainarong)"], "Diocesan Boys' School Saxophone Quartet": ["Andante et Scherzo — I. Andante (Eugène Bozza)", "Suite Hellénique — I. Kalamatianos (Pedro Iturralde)"], "Sri KL Double Reed Trio": ["Trio in C Major, Op. 87 (Beethoven, ed. Basspoon)", "Trio in G Minor, RV 81 (Vivaldi, ed. Nils Jönsson)"], "Diocesan Boys' School Woodwind Quintet": ["Serenade for Wind Quintet — I. Allegro, II. Andante espressivo, III. Allegro vivace (Ferenc Farkas)"], "ITE Concert Band": ["Snow of an Aynu Village (Hirokazu Fukushima)", "Makam Dance (Hiroaki Kataoka)"], "Sri KL Flute Ensemble": ["Capriccio (Park Soo-Hyun)", "Coloratura (Satoshi Yagisawa)"], "Diocesan Boys' School Brass Quintet": ["Quintet No. 1, Op. 5 — I. Moderato (Victor Ewald)", "Quintet (Michael Kamen)"], "Siang Lom 4 Thit": ["Mountain Roads — I. Overture (David Maslanka)", "White and Black (Daisuke Ehara)", "Ciudades (Guillermo Lago)"], "Hsinchu Tzu Chiang Junior High School Brass Quintet": ["Grand Valley Fanfare (Eric Ewazen)", "Blaze Away March and Two Step (Abe Holzmann, arr. David Marlatt)", "Vuelta del Fuego — Ride of Fire (Kevin McKee)"], "Arun Brass Quintet": ["Brass Quintet No. 1, Op. 5 — I. Moderato (Victor Ewald)", "Mosaics — I–IV (Anthony Plog)"], "Malacca Brass Quintet": ["Quintet for Brass, Op. 73 — I. Allegro Vivace (Malcolm Arnold)", "'My Neighbor Totoro' Medley (Yosuke Fukuda)", "Brass Quintet No. 3 in D-flat, Op. 7 — II. Intermezzo (Victor Ewald)"], "Singapore Polytechnic Symphonic Band": ["Three Celtic Dances (Brian Balmages)", "The Sisters' Island (Wang Chen Wei)"], "Tutti Wind Orchestra (TWO)": ["Where Never Lark or Eagle Flew (James Curnow)", "Three Celtic Dances (Brian Balmages)"], "RP Wind Symphony": ["Aurora Dances (Philip Sparke)", "The Last Letter from Murdoch — Special Edition (Masanori Taruya)"], "Millennia Institute Symphonic Band": ["Aurora Dances (Philip Sparke)", "Lucid Dreams (Adrian B. Sims)"], "Ngee Ann Polytechnic Concert Band": ["Aurora Dances (Philip Sparke)", "Lux Perpetua (Frank Ticheli)"], "AudioImage Wind Ensemble": ["Prayer (Hardy Mertens)", "Lamentation of Archangel Michael (Gemba Fujita)", "Come Sunday — I. Testimony, II. Shout! (Omar Thomas)"], "Youka Wind Ensemble": ["Pangu Separates the Sky from the Earth (Hideaki Miura)", "Sailing with Whales (Rossano Galante)", "Sea of Wisdom (Daisuke Shimizu)", "At World's End — Pirates of the Caribbean (arr. Erik Rozendom)", "Goddess of Formosa Strait (Mei-mi Lan)"], "Singapore Wind Symphony Youth": ["Seven Short Fanfares — The Glorious Century (Naoya Wada)", "Fluttering Maple Leaves (Jun Nagao)", "Seven Short Fanfares — The Big Dipper (Naoya Wada)", "Trencadís (Bert Appermont)"], "Shenzhen Shockwave Wind Band (Nanshan Dachong School)": ["Darklands March (Randall D. Standridge)", "Rising Above — A New Hope (Satoshi Yagisawa)"], "Chengdu Golden Apple Jincheng No.1 Sec. School Wind Orchestra": ["One Life Beautiful (Julie Giroux)", "The Spirit of St. Louis (Daisuke Shimizu)"], "New Taipei Hai-Shan High School (Jr High Div.) Wind Band": ["Rocketship! (Kevin Day)", "Montserrat (Satoshi Yagisawa)"], "De La Salle Santiago Zobel Symphonic Band": ["Programme not yet published on sibf.sg"]};
 const DAYS=[["21","Tue 21"],["22","Wed 22"],["23","Thu 23"],["24","Fri 24"],["25","Sat 25"],["26","Sun 26"]];
 const DAYNAMES={21:"Tuesday 21 July",22:"Wednesday 22 July",23:"Thursday 23 July",24:"Friday 24 July",25:"Saturday 25 July",26:"Sunday 26 July"};
-const FILTERS=[["all","All"],["WBAS","Symposium"],["SIBF","Bands"],["GALA","Concerts"],["mine","★ My Plan"]];
+const FILTERS=[["now","🔴 Now"],["all","All"],["WBAS","Symposium"],["SIBF","Bands"],["GALA","Concerts"],["mine","★ My Plan"]];
 let day=localStorage.getItem("wsib.day")||"21", filt="all", q="";
 let stars=new Set(JSON.parse(localStorage.getItem("wsib.stars")||"[]"));
 const idOf=e=>e[0]+"|"+e[1]+"|"+e[4];
@@ -188,8 +270,62 @@ function renderNav(){
     `<button class="${f===filt?'on':''}" onclick="setFilt('${f}')">${l}</button>`).join("");
 }
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+const pm=t=>{const m=String(t).match(/(\d{1,2}):(\d{2})/);return m?+m[1]*60+ +m[2]:0};
+const durOf=e=>e[2]==="GALA"?120:e[2]==="WBAS"?60:20;
+function cardHtml(e){
+  const id=idOf(e),on=stars.has(id);
+  return `<div class="card ${e[2]}">
+      <div class="time">${e[1]}</div>
+      <div class="body">
+        <span class="tag src">${e[2]==="GALA"?"CONCERT":e[2]}</span><span class="tag div">${esc(e[3])}</span>
+        <div class="title">${esc(e[4])}</div>
+        ${e[5]?`<div class="who">${esc(e[5])}</div>`:""}
+        <div class="venue">📍 ${esc(e[6])}</div>
+        ${e[2]==="SIBF"&&P[e[4]]?`<details class="prog"><summary>🎵 Programme</summary><ul>${P[e[4]].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`:""}
+        ${e[7]?`<div class="clash">⚠️ ${esc(e[7])}</div>`:""}
+      </div>
+      <button class="star ${on?'on':''}" aria-label="save" onclick="toggle('${id.replace(/'/g,"\\'")}')">${on?"★":"☆"}</button>
+    </div>`;
+}
+function renderNow(){
+  const n=new Date(), dstr=String(n.getDate());
+  const isFest=n.getFullYear()===2026&&n.getMonth()===6&&DAYS.some(x=>x[0]===dstr);
+  if(!isFest){
+    const before=n<new Date(2026,6,21);
+    if(before){
+      return `<div class="nowbar">Festival starts Tuesday 21 July — here's day one:</div>`+
+        E.filter(e=>e[0]==="21").slice(0,4).map(cardHtml).join("");
+    }
+    return `<div class="empty">🎉 The festival has wrapped — hope it was a blast! Use the day tabs above to look back at any day.</div>`;
+  }
+  const nowMin=n.getHours()*60+n.getMinutes();
+  const todays=E.filter(e=>e[0]===dstr).sort((a,b)=>pm(a[1])-pm(b[1]));
+  const onNow=todays.filter(e=>{const s=pm(e[1]);return s<=nowMin&&nowMin<s+durOf(e)});
+  const next=todays.filter(e=>pm(e[1])>nowMin).slice(0,4);
+  const hhmm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
+  let out=`<div class="nowbar">🔴 On now · ${DAYNAMES[dstr]} · ${hhmm}</div>`;
+  out+= onNow.length?onNow.map(cardHtml).join(""):`<div class="empty" style="padding:14px">Nothing on stage right this minute.</div>`;
+  out+=`<div class="dayhead">Up next</div>`;
+  out+= next.length?next.map(cardHtml).join(""):`<div class="empty" style="padding:14px">That's a wrap for today.</div>`;
+  return out;
+}
+function clashBanner(){
+  const mine=E.filter(e=>stars.has(idOf(e))), byDay={};
+  mine.forEach(e=>{(byDay[e[0]]=byDay[e[0]]||[]).push(e)});
+  const cl=[];
+  Object.values(byDay).forEach(list=>{
+    list.sort((a,b)=>pm(a[1])-pm(b[1]));
+    for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+      if(pm(list[j][1])<pm(list[i][1])+durOf(list[i]))cl.push([list[i],list[j]]);
+    }
+  });
+  if(!cl.length)return "";
+  return `<div class="clashbar"><b>⚠️ ${cl.length} time clash${cl.length>1?"es":""} in your plan</b>`+
+    cl.map(([a,b])=>`<div>${DAYNAMES[a[0]].split(" ").slice(0,2).join(" ")}: “${esc(a[4])}” (${a[1]}) overlaps “${esc(b[4])}” (${b[1]})</div>`).join("")+`</div>`;
+}
 function render(){
   renderNav();
+  if(filt==="now"){document.getElementById("list").innerHTML=renderNow();return}
   let rows=E.filter(e=>{
     if(filt==="mine"){if(!stars.has(idOf(e)))return false}
     else{
@@ -203,29 +339,19 @@ function render(){
   let html="",lastDay="";
   for(const e of rows){
     if(filt==="mine"&&e[0]!==lastDay){html+=`<div class="dayhead">${DAYNAMES[e[0]]}</div>`;lastDay=e[0]}
-    const id=idOf(e),on=stars.has(id);
-    html+=`<div class="card ${e[2]}">
-      <div class="time">${e[1]}</div>
-      <div class="body">
-        <span class="tag src">${e[2]==="GALA"?"CONCERT":e[2]}</span><span class="tag div">${esc(e[3])}</span>
-        <div class="title">${esc(e[4])}</div>
-        ${e[5]?`<div class="who">${esc(e[5])}</div>`:""}
-        <div class="venue">📍 ${esc(e[6])}</div>
-        ${e[2]==="SIBF"&&P[e[4]]?`<details class="prog"><summary>🎵 Programme</summary><ul>${P[e[4]].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`:""}
-        ${e[7]?`<div class="clash">⚠️ ${esc(e[7])}</div>`:""}
-      </div>
-      <button class="star ${on?'on':''}" aria-label="save" onclick="toggle('${id.replace(/'/g,"\\'")}')">${on?"★":"☆"}</button>
-    </div>`;
+    html+=cardHtml(e);
   }
-  document.getElementById("list").innerHTML=html||`<div class="empty">${filt==="mine"?"Nothing starred yet — tap ☆ on events you want to attend.":"Nothing matches."}</div>`;
+  const banner=(filt==="mine"&&!q)?clashBanner():"";
+  document.getElementById("list").innerHTML=banner+(html||`<div class="empty">${filt==="mine"?"Nothing starred yet — tap ☆ on events you want to attend.":"Nothing matches."}</div>`);
 }
-function setDay(d){day=d;if(filt==="mine")filt="all";save();render();window.scrollTo(0,0)}
-function setFilt(f){filt=f;render()}
+function toggleMap(o){document.getElementById("mapmodal").style.display=o?"flex":"none"}
+function setDay(d){day=d;if(filt==="mine"||filt==="now")filt="all";save();render();window.scrollTo(0,0)}
+function setFilt(f){filt=f;render();window.scrollTo(0,0)}
 function toggle(id){stars.has(id)?stars.delete(id):stars.add(id);save();render()}
 document.getElementById("q").addEventListener("input",e=>{q=e.target.value.trim().toLowerCase();render()});
 // default to today during the festival
 const now=new Date();
-if(now.getFullYear()===2026&&now.getMonth()===6){const d=String(now.getDate());if(DAYS.some(x=>x[0]===d)&&!localStorage.getItem("wsib.day"))day=d}
+if(now.getFullYear()===2026&&now.getMonth()===6){const d=String(now.getDate());if(DAYS.some(x=>x[0]===d)){day=d;filt="now";}}
 render();
 </script>
 </body>
