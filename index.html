@@ -12,7 +12,7 @@
   --bg:#f4f6fa; --card:#ffffff; --line:#e2e8f0;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:40px}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:84px}
 header{background:var(--navy);color:#fff;padding:14px 16px 10px;position:sticky;top:0;z-index:20}
 header h1{margin:0;font-size:17px;font-weight:700}
 header p{margin:2px 0 0;font-size:12px;opacity:.85}
@@ -49,6 +49,9 @@ main{padding:8px 12px;max-width:640px;margin:0 auto}
 .empty{text-align:center;color:var(--mut);font-size:13px;padding:40px 10px}
 footer{max-width:640px;margin:20px auto 0;padding:0 16px;font-size:11px;color:var(--mut);line-height:1.5}
 .count{font-size:11px;background:#d69e2e;color:#fff;border-radius:9px;padding:1px 6px;margin-left:4px;font-weight:700}
+#fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:30;display:flex;align-items:center;gap:7px;background:#d69e2e;color:#fff;border:none;border-radius:26px;padding:12px 18px;font-size:14px;font-weight:700;box-shadow:0 5px 16px rgba(0,0,0,.28);cursor:pointer}
+#fab.on{background:var(--navy)}
+#fab .fabn{background:rgba(255,255,255,.28);border-radius:10px;padding:1px 8px;font-size:12px}
 input#q{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:14px;margin:6px 0 2px;background:var(--card);color:var(--ink)}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 #mapbtn{flex:0 0 auto;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;border-radius:16px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
@@ -102,6 +105,7 @@ input#q{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 12
   <b>Divisions:</b> B1–B3 concert bands &middot; B2A/B2B = Division 2 &middot; SE = Small Ensemble &middot; PE = Percussion Ensemble &middot; CD = Concert Division (YSTCM).<br><br>
   WBAS times are published start times (sessions ≈ 60 min). Schedules subject to change — check <a href="https://www.sibf.sg/sibf2026">sibf.sg</a> and <a href="https://www.wbas.org.sg/symposium">wbas.org.sg</a>. Your ★ picks are saved on this device only.
 </footer>
+<button id="fab" onclick="openPlan()" aria-label="My Plan">★ My Plan</button>
 <div id="mapmodal" class="modal" onclick="if(event.target.id==='mapmodal')toggleMap(0)">
   <div class="sheet">
     <div class="sheethead"><b>Getting around · NUS</b><button onclick="toggleMap(0)" aria-label="close">✕</button></div>
@@ -324,7 +328,7 @@ function clashBanner(){
     cl.map(([a,b])=>`<div>${DAYNAMES[a[0]].split(" ").slice(0,2).join(" ")}: “${esc(a[4])}” (${a[1]}) overlaps “${esc(b[4])}” (${b[1]})</div>`).join("")+`</div>`;
 }
 function render(){
-  renderNav();
+  renderNav();updateFab();
   if(filt==="now"){document.getElementById("list").innerHTML=renderNow();return}
   let rows=E.filter(e=>{
     if(filt==="mine"){if(!stars.has(idOf(e)))return false}
@@ -343,7 +347,14 @@ function render(){
   }
   const banner=(filt==="mine"&&!q)?clashBanner():"";
   document.getElementById("list").innerHTML=banner+(html||`<div class="empty">${filt==="mine"?"Nothing starred yet — tap ☆ on events you want to attend.":"Nothing matches."}</div>`);
+  updateFab();
 }
+function updateFab(){
+  const fab=document.getElementById("fab"),n=stars.size;
+  fab.innerHTML=`★ My Plan${n?` <span class="fabn">${n}</span>`:""}`;
+  fab.classList.toggle("on",filt==="mine");
+}
+function openPlan(){filt="mine";render();window.scrollTo(0,0)}
 function toggleMap(o){document.getElementById("mapmodal").style.display=o?"flex":"none"}
 function setDay(d){day=d;if(filt==="mine"||filt==="now")filt="all";save();render();window.scrollTo(0,0)}
 function setFilt(f){filt=f;render();window.scrollTo(0,0)}
